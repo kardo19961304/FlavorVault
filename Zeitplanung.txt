@@ -1,0 +1,8 @@
+Tag	Inhalt
+Tag 1	Projekt definieren, Genehmigung einholen, GitHub-Repo erstellen
+Tag 2	Klassenstruktur & Basislogik: Rezept, Liste, Anzeigen
+Tag 3	Funktionen hinzufügen 
+Tag 4	Serialisierung: Rezepte speichern & laden 
+Tag 5	Filter & Zufall: Gericht nach Kriterien vorschlagen
+Tag 6	Extras: Favoriten, Zutaten-Suche
+Tag 7	Abgabe, ReadMe, Präsentation, Selbsteinschätzung
