@@ -80,29 +80,21 @@ namespace KochrezeptVerwalter
 
         private void LadeRezepte()
         {
-            try
-            {
+           
                 _rezepte = _serializer.LadeRezepte();
                 _ui.ZeigeNachricht($"{_rezepte.Count} Rezepte erfolgreich geladen.");
-            }
-            catch (Exception ex)
-            {
-                _ui.ZeigeFehler($"Fehler beim Laden der Rezepte: {ex.Message}");
-                _rezepte = new List<Rezept>();
-            }
+            
         }
 
         private void SpeichereRezepte()
         {
-            try
-            {
+            
+            
                 _serializer.SpeichereRezepte(_rezepte);
                 _ui.ZeigeNachricht("Rezepte erfolgreich gespeichert.");
-            }
-            catch (Exception ex)
-            {
-                _ui.ZeigeFehler($"Fehler beim Speichern der Rezepte: {ex.Message}");
-            }
+            
+             
+  
         }
 
         private void RezeptHinzufügen()
