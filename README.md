@@ -27,4 +27,4 @@ Microsoft Docs: System.Text.Json Namespace
 
 Eigene Kenntnisse aus Unterricht und Übungsprojekten
 
-ChatGPT für kleinere Syntaxkorrekturen
+ChatGPT 
