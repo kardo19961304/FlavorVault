@@ -60,9 +60,6 @@ namespace KochrezeptVerwalter
                         ZufälligesRezeptMitFilter();
                         break;
                     case "5":
-                        RestverwendungFinden();
-                        break;
-                    case "6":
                         beenden = true;
                         break;
                     default:
@@ -80,21 +77,29 @@ namespace KochrezeptVerwalter
 
         private void LadeRezepte()
         {
-           
+            try
+            {
                 _rezepte = _serializer.LadeRezepte();
                 _ui.ZeigeNachricht($"{_rezepte.Count} Rezepte erfolgreich geladen.");
-            
+            }
+            catch (Exception ex)
+            {
+                _ui.ZeigeFehler($"Fehler beim Laden der Rezepte: {ex.Message}");
+                _rezepte = new List<Rezept>();
+            }
         }
 
         private void SpeichereRezepte()
         {
-            
-            
+            try
+            {
                 _serializer.SpeichereRezepte(_rezepte);
                 _ui.ZeigeNachricht("Rezepte erfolgreich gespeichert.");
-            
-             
-  
+            }
+            catch (Exception ex)
+            {
+                _ui.ZeigeFehler($"Fehler beim Speichern der Rezepte: {ex.Message}");
+            }
         }
 
         private void RezeptHinzufügen()
@@ -230,61 +235,6 @@ namespace KochrezeptVerwalter
             _ui.ZeigeNachricht("\nHier ist ein zufälliger Rezeptvorschlag basierend auf Ihren Filtern:");
             ZeigeRezeptDetailsMitZurückOption(gefilterteRezepte[zufallsIndex]);
         }
-
-        private void RestverwendungFinden()
-        {
-            if (_rezepte.Count == 0)
-            {
-                _ui.ZeigeNachricht("Keine Rezepte vorhanden, um Reste zu verwenden.");
-                return;
-            }
-
-            Console.Clear();
-            _ui.ZeigeÜberschrift("Reste verwenden");
-
-            _ui.ZeigeZurückOption();
-            if (_ui.PrüfeZurückAuswahl())
-            {
-                return;
-            }
-
-            string eingabe = _ui.LiesTextEingabe("Geben Sie die Zutaten ein, die Sie verwenden möchten (getrennt durch Komma):");
-
-            var verfügbareZutaten = eingabe.Split(',')
-                .Select(z => z.Trim().ToLower())
-                .Where(z => !string.IsNullOrWhiteSpace(z))
-                .ToList();
-
-            if (verfügbareZutaten.Count == 0)
-            {
-                _ui.ZeigeNachricht("Keine Zutaten angegeben.");
-                return;
-            }
-
-            _ui.ZeigeNachricht($"\nSuche nach Rezepten, die folgende Zutaten verwenden: {string.Join(", ", verfügbareZutaten)}");
-
-            RezeptFilter filter = new RezeptFilter();
-            var passendeRezepte = filter.FindePassendeRezepteFürZutaten(_rezepte, verfügbareZutaten);
-
-            if (passendeRezepte.Count == 0)
-            {
-                _ui.ZeigeNachricht("Keine passenden Rezepte gefunden.");
-                return;
-            }
-
-            _ui.ZeigeNachricht("\nGefundene Rezepte (sortiert nach Übereinstimmung):");
-            for (int i = 0; i < passendeRezepte.Count; i++)
-            {
-                var (rezept, anzahl) = passendeRezepte[i];
-                _ui.ZeigeNachricht($"{i + 1}. {rezept.Name} - Verwendet {anzahl} Ihrer Zutaten");
-            }
-
-            int auswahl = _ui.LiesZahlEingabeOptional("\nGeben Sie die Nummer eines Rezepts ein, um Details anzuzeigen (oder 0 zum Zurückkehren): ", 0, passendeRezepte.Count);
-            if (auswahl > 0)
-            {
-                ZeigeRezeptDetailsMitZurückOption(passendeRezepte[auswahl - 1].Rezept);
-            }
-        }
     }
 
     class RezeptFilter
@@ -297,22 +247,6 @@ namespace KochrezeptVerwalter
                 (string.IsNullOrWhiteSpace(zutat) || r.EnthältZutat(zutat.ToLower()))
             ).ToList();
         }
-
-        public List<(Rezept Rezept, int AnzahlPassenderZutaten)> FindePassendeRezepteFürZutaten(List<Rezept> rezepte, List<string> verfügbareZutaten)
-        {
-            var ergebnisse = new List<(Rezept Rezept, int AnzahlPassenderZutaten)>();
-
-            foreach (var rezept in rezepte)
-            {
-                int übereinstimmungen = rezept.ZähleZutatenÜbereinstimmungen(verfügbareZutaten);
-                if (übereinstimmungen > 0)
-                {
-                    ergebnisse.Add((rezept, übereinstimmungen));
-                }
-            }
-
-            return ergebnisse.OrderByDescending(p => p.AnzahlPassenderZutaten).ToList();
-        }
     }
 
     class BenutzerSchnittstelle
@@ -324,8 +258,7 @@ namespace KochrezeptVerwalter
             Console.WriteLine("2. Alle Rezepte anzeigen");
             Console.WriteLine("3. Zufälliges Rezept vorschlagen");
             Console.WriteLine("4. Zufälliges Rezept mit Filter");
-            Console.WriteLine("5. Rezepte für Resteverwertung finden");
-            Console.WriteLine("6. Beenden");
+            Console.WriteLine("5. Beenden");
             Console.Write("Ihre Auswahl: ");
         }
 
@@ -521,19 +454,6 @@ namespace KochrezeptVerwalter
         public bool EnthältZutat(string zutat)
         {
             return Zutaten.Any(z => z.ToLower().Contains(zutat.ToLower()));
-        }
-
-        public int ZähleZutatenÜbereinstimmungen(List<string> verfügbareZutaten)
-        {
-            int übereinstimmungen = 0;
-            foreach (var zutat in verfügbareZutaten)
-            {
-                if (EnthältZutat(zutat))
-                {
-                    übereinstimmungen++;
-                }
-            }
-            return übereinstimmungen;
         }
     }
 }
